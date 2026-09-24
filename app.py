@@ -4,7 +4,7 @@ import os
 import random
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parent
 COUNTRIES = [
@@ -29,8 +29,10 @@ BY_NAME = {name: (capital, fact) for name, capital, fact in COUNTRIES}
 CAPITALS = [capital for _, capital, _ in COUNTRIES]
 
 
-def question():
-    name, capital, _ = random.choice(COUNTRIES)
+def question(name=None):
+    if name is None:
+        name = random.choice(COUNTRIES)[0]
+    capital, _ = BY_NAME[name]
     options = random.sample([x for x in CAPITALS if x != capital], 3) + [capital]
     random.shuffle(options)
     return {"country": name, "options": options}
@@ -50,9 +52,15 @@ class Handler(BaseHTTPRequestHandler):
         self.send_bytes(status, json.dumps(value, ensure_ascii=False).encode(), "application/json; charset=utf-8")
 
     def do_GET(self):
-        path = urlparse(self.path).path
+        parsed = urlparse(self.path)
+        path = parsed.path
+        if path == "/api/countries":
+            return self.send_json(200, {"countries": list(BY_NAME)})
         if path == "/api/question":
-            return self.send_json(200, question())
+            name = parse_qs(parsed.query).get("country", [None])[0]
+            if name is not None and name not in BY_NAME:
+                return self.send_json(400, {"error": "Unknown country"})
+            return self.send_json(200, question(name))
         if path == "/health":
             return self.send_json(200, {"status": "ok"})
         files = {"/": ("index.html", "text/html"), "/style.css": ("style.css", "text/css"), "/app.js": ("app.js", "text/javascript")}
