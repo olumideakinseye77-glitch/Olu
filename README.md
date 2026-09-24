@@ -1,6 +1,6 @@
 # West Africa Capitals Quiz
 
-A Python web app about the capitals of 16 West African countries. It serves a responsive quiz, checks answers through a JSON API, and explains two commonly confused capitals. No Python packages are required.
+A Python web app about the capitals of 16 West African countries. Each round asks about every country once, ends after 16 answers, and shows your final score. It serves a responsive quiz, checks answers through a JSON API, and explains two commonly confused capitals. No Python packages are required.
 
 ## Run locally
 
@@ -42,7 +42,7 @@ Create an Azure App Service **Web App for Containers** running Linux, with an Az
 
 ## How it works
 
-`GET /api/question` returns a country and four choices; `POST /api/answer` checks a country and selected capital and returns the answer and a brief fact. The browser tracks score for the current page session. There is no database or account. Questions may repeat; this is a practice quiz rather than an exam. The server uses Python's standard library and the Docker image runs as a non-root user.
+`GET /api/countries` lists the 16 countries. The browser shuffles that list and requests each country once using `GET /api/question?country=...`. `POST /api/answer` checks a country and selected capital and returns the answer and a brief fact. The browser tracks the score for the current round. There is no database or account. The server uses Python's standard library and the Docker image runs as a non-root user.
 
 ## Portfolio talking points
 
