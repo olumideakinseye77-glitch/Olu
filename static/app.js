@@ -5,13 +5,39 @@ const next = document.querySelector('#next');
 let current;
 let score = 0;
 let count = 0;
+let countries = [];
+
+async function startRound() {
+  score = count = 0;
+  document.querySelector('#score').textContent = '0';
+  document.querySelector('#count').textContent = '0 / 16';
+  next.hidden = true;
+  options.replaceChildren();
+  country.textContent = 'Loading…';
+  feedback.textContent = '';
+  document.querySelector('#prompt').textContent = 'WHAT IS THE CAPITAL OF';
+  try {
+    const response = await fetch('/api/countries');
+    if (!response.ok) throw new Error('Could not load countries');
+    countries = (await response.json()).countries;
+    // Fisher–Yates shuffle: every country appears exactly once per round.
+    for (let i = countries.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [countries[i], countries[j]] = [countries[j], countries[i]];
+    }
+    await loadQuestion();
+  } catch {
+    country.textContent = 'Connection problem';
+    feedback.textContent = 'Please start a new round to try again.';
+  }
+}
 
 async function loadQuestion() {
   next.hidden = true;
   feedback.textContent = '';
   options.replaceChildren();
   try {
-    const response = await fetch('/api/question');
+    const response = await fetch('/api/question?country=' + encodeURIComponent(countries[count]));
     if (!response.ok) throw new Error('Could not load the question');
     current = await response.json();
     country.textContent = current.country;
@@ -39,13 +65,19 @@ async function submit(choice) {
     count += 1;
     if (result.correct) score += 1;
     document.querySelector('#score').textContent = score;
-    document.querySelector('#count').textContent = count;
+    document.querySelector('#count').textContent = `${count} / ${countries.length}`;
     for (const button of options.children) {
       if (button.textContent === result.capital) button.classList.add('correct');
       else if (button.textContent === choice) button.classList.add('wrong');
     }
     feedback.textContent = `${result.correct ? 'Correct!' : `The answer is ${result.capital}.`} ${result.fact}`;
-    next.hidden = false;
+    if (count === countries.length) {
+      document.querySelector('#prompt').textContent = 'ROUND COMPLETE';
+      country.textContent = `You scored ${score} out of ${countries.length}!`;
+      feedback.textContent = `${result.correct ? 'Correct!' : `The answer is ${result.capital}.`} ${result.fact} Play again to try for a higher score.`;
+    } else {
+      next.hidden = false;
+    }
   } catch {
     feedback.textContent = 'Could not check your answer. Please try again.';
     for (const button of options.children) button.disabled = false;
@@ -53,10 +85,5 @@ async function submit(choice) {
 }
 
 next.addEventListener('click', loadQuestion);
-document.querySelector('#reset').addEventListener('click', () => {
-  score = count = 0;
-  document.querySelector('#score').textContent = '0';
-  document.querySelector('#count').textContent = '0';
-  loadQuestion();
-});
-loadQuestion();
+document.querySelector('#reset').addEventListener('click', startRound);
+startRound();
