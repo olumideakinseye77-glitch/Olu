@@ -1,0 +1,8 @@
+FROM python:3.12-slim
+WORKDIR /app
+COPY app.py ./
+COPY static ./static
+ENV PORT=8000 PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+EXPOSE 8000
+USER 10001
+CMD ["python", "app.py"]
