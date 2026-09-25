@@ -1,4 +1,4 @@
-# Project build and deployment record
+# Project 1 — West Africa Capitals Quiz: build and deployment record
 
 ## Goal
 
