@@ -11,7 +11,7 @@ This project extends [Project 1](../README.md). Terraform reads the existing res
 
 ## Deployed result
 
-On 25 September 2026, the reviewed plan showed **3 to add, 0 to change, 0 to destroy**. `terraform apply` completed with exactly those three resources: the identity, role assignment, and staging Container App. The staging quiz was played successfully in a browser:
+On 25 September 2026, the reviewed plan showed **3 to add, 0 to change, 0 to destroy**. `terraform apply` completed with exactly those three resources: the identity, role assignment, and staging Container App. The staging quiz was played successfully in a browser. A follow-up `terraform plan -no-color` reported **No changes. Your infrastructure matches the configuration.** The Container App pins `workload_profile_name = "Consumption"` to match Azure's reported profile:
 
 **[Open the staging quiz](https://west-africa-quiz-staging.orangetree-477f51ac.uksouth.azurecontainerapps.io)**
 
@@ -47,6 +47,7 @@ A normal follow-up plan should report **No changes**. Test the URL and `/health`
 - Cloud Shell's first storage data request timed out obtaining a token. Signing in to the subscription's tenant for the storage scope resolved that issue.
 - Initial backend access returned `403 AuthorizationPermissionMismatch`. Assigning **Storage Blob Data Contributor** to the signed-in user at the storage-account scope fixed it.
 - The first `terraform init` with the backend succeeded; the final plan and apply each showed exactly three creations.
+- A follow-up plan initially proposed `workload_profile_name = "Consumption" -> null`. Pinning the observed `Consumption` profile in the configuration removed that drift without changing the running app.
 
 ## Next project
 
