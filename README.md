@@ -56,8 +56,28 @@ Source code: [olumideakinseye77-glitch/Olu](https://github.com/olumideakinseye77
 
 Explain HTTP routes, JSON requests, Docker image layers, the exposed port, Azure container deployment, and why `/health` helps monitor the app. An extension would add GitHub Actions tests and automatic deployment after the first manual deployment works.
 
-## Project 2 — Automated Azure Deployment
+## Project 2 — Terraform Staging Deployment on Azure
 
-**Status: In preparation · [View the Terraform draft](https://github.com/olumideakinseye77-glitch/Olu/pull/1)**
+**Status: Deployed and verified · [Play the staging quiz](https://west-africa-quiz-staging.orangetree-477f51ac.uksouth.azurecontainerapps.io) · [Review the Terraform code and deployment record](https://github.com/olumideakinseye77-glitch/Olu/pull/1)**
 
-Use Terraform to define a separate staging deployment of the same quiz. The live Project 1 app stays in place while the infrastructure code is reviewed and tested.
+I used **Terraform** to deploy a separate staging copy of my West Africa Capitals Quiz. It runs on Azure Container Apps in UK South using the existing Docker image in Azure Container Registry. The production quiz from Project 1 continues to run separately.
+
+### What I built
+
+- Terraform reads the existing resource group, Container Apps environment, and container registry.
+- It creates a staging Container App, a user-assigned managed identity, and a registry-scoped `AcrPull` role assignment. The app has public HTTPS ingress on port 8000 and can scale from zero to one replica.
+- Terraform state is held in a private Azure Storage blob container, so the deployment can be managed across temporary Azure Cloud Shell sessions. The provider lock file pins the tested AzureRM provider version.
+
+### What I verified
+
+I ran `terraform fmt`, `terraform validate`, and reviewed a plan showing **3 to add, 0 to change, 0 to destroy**. The apply created those three resources. I played the staging quiz in a browser, then ran another plan that reported **No changes**. The production app was not included in the changes.
+
+### Problems I solved
+
+Cloud Shell initially could not get a storage token, and Terraform received a `403` when accessing the state container. I signed in to the correct Azure tenant and granted my user **Storage Blob Data Contributor** on the state storage account. After deployment, Azure reported the default `Consumption` workload profile, which produced a one-line Terraform difference. I declared that profile explicitly and confirmed a clean plan.
+
+### Why this matters
+
+This project shows I can describe Azure infrastructure as code, control access with managed identity and role assignments, keep Terraform state durable, and verify that the deployed resources match the configuration. These are practical skills for **junior Azure cloud engineering and DevOps roles**. A hiring manager can inspect the [Terraform files and full setup guide](https://github.com/olumideakinseye77-glitch/Olu/tree/project-2-terraform-staging/infra) and try both the [production quiz](https://west-africa-quiz.orangetree-477f51ac.uksouth.azurecontainerapps.io) and [staging quiz](https://west-africa-quiz-staging.orangetree-477f51ac.uksouth.azurecontainerapps.io).
+
+**Next:** Project 3 will add automated tests and a GitHub Actions build and deployment workflow.
