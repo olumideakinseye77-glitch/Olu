@@ -23,24 +23,24 @@ docker run --rm -p 8000:8000 west-africa-quiz
 
 Open http://localhost:8000. The health endpoint is `/health`.
 
-## Put it on GitHub
+## Azure deployment
 
-Create an empty repository named `west-africa-quiz` in your GitHub account. From this directory:
+The live quiz runs on **Azure Container Apps** (Consumption) in UK South. Its image is stored in **Azure Container Registry** as `oluwestafricaquiz.azurecr.io/west-africa-quiz:v1`. Public HTTP ingress routes to container port **8000**. The application provides a health endpoint at `/health`.
+
+To publish a code change, pull the latest version, rebuild, tag, and push a new image:
 
 ```bash
-git init
-git add .
-git commit -m "Build West Africa capitals quiz"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/west-africa-quiz.git
-git push -u origin main
+git pull
+docker build -t west-africa-quiz .
+docker tag west-africa-quiz:latest oluwestafricaquiz.azurecr.io/west-africa-quiz:v2
+docker push oluwestafricaquiz.azurecr.io/west-africa-quiz:v2
 ```
 
-Replace `YOUR_USERNAME` with your GitHub username. If Git asks for authentication, use your normal GitHub sign-in flow; never commit credentials.
+Sign in to the registry before pushing. Then update the Container App's image tag to `v2` in Azure. A new tag makes it clear which version is deployed. The Container App should use managed identity with permission to pull images from the registry. Azure Container Registry can incur ongoing charges, and Container Apps usage beyond its free allowance can incur charges.
 
-## Deploy to Azure App Service
+## Repository
 
-Create an Azure App Service **Web App for Containers** running Linux, with an Azure Container Registry image of this project. Set the App Service application setting `WEBSITES_PORT=8000` and use port 8000 for the container. Build and push the image to your registry, then configure the Web App's container image and restart it. The `/health` endpoint returns `{"status": "ok"}`. Registry and App Service usage may incur charges; stop or delete resources when finished.
+Source code: [olumideakinseye77-glitch/Olu](https://github.com/olumideakinseye77-glitch/Olu). The app uses Python's standard library and needs no Python dependencies.
 
 ## How it works
 
