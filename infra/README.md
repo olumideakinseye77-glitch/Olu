@@ -2,61 +2,52 @@
 
 This project extends [Project 1](../README.md). Terraform reads the existing resource group, Azure Container Registry and Container Apps environment, then defines a **separate staging quiz** with a user-assigned identity and `AcrPull` access. The live quiz remains outside this Terraform configuration.
 
-## Why staging?
+## What this demonstrates
 
-Project 1's live app works and uses the environment's managed identity. The AzureRM Container App resource documents a user-assigned identity for its registry configuration. A new staging app lets you learn Terraform with an explicit identity and an isolated deployment. It also avoids another container registry and another environment. The staging app and identity can still incur charges; review `terraform plan` and Azure pricing before applying.
+- Existing Azure resources are read through Terraform data sources, so the production quiz stays untouched.
+- A dedicated user-assigned identity receives the `AcrPull` role scoped to the existing registry.
+- A staging Container App runs the same image with 0–1 replicas, public HTTPS ingress and port 8000.
+- Terraform state is stored in a private Azure Storage blob container and accessed using Azure CLI Microsoft Entra authentication. State is never committed to GitHub.
 
-## What you will learn
+## Deployed result
 
-1. Read existing Azure resources with Terraform data sources.
-2. Declare an identity and narrowly scoped registry pull role.
-3. Declare a Container App with one image, 0–1 replicas, and public ingress to port 8000.
-4. Use `terraform init`, `fmt`, `validate`, `plan`, and `apply` with a durable state backend.
-5. Change the image tag as a controlled deployment, verify `/health`, and document the plan and live staging URL.
+On 25 September 2026, the reviewed plan showed **3 to add, 0 to change, 0 to destroy**. `terraform apply` completed with exactly those three resources: the identity, role assignment, and staging Container App. The staging quiz was played successfully in a browser:
 
-## Before applying
+**[Open the staging quiz](https://west-africa-quiz-staging.orangetree-477f51ac.uksouth.azurecontainerapps.io)**
 
-**Terraform state must be durable.** Your Azure Cloud Shell session is ephemeral, so do not run `terraform apply` there with local state. State can contain sensitive data and must never be committed to GitHub.
+The existing production app, Container Apps environment, and registry were read as data sources, with no planned changes.
 
-Create an Azure Storage account with a private blob container for Terraform state, or use another durable Terraform backend. For Azure Storage, add `backend "azurerm" {}` inside the `terraform` block in `versions.tf`, then supply the backend's resource group, storage account, container, key and Azure AD authentication through a local `backend.hcl` file (which is ignored by Git). Consult the [Azure state backend guide](https://learn.microsoft.com/en-us/azure/developer/terraform/get-started/store-state-in-azure-storage) for the exact setup and permissions. Storage may incur charges.
+## State and access
 
-The existing registry uses **LegacyRegistryPermissions**, so `AcrPull` is the relevant role. If that mode is changed, revisit the role assignment. You need Azure rights to create a managed identity, assign `AcrPull`, and deploy a Container App. The `v1` image must still exist in the existing registry.
+The backend is declared in [backend.tf](backend.tf): storage account `oluwestafricatfstate77`, private container `tfstate`, blob `project2-staging.tfstate`. The storage account is in `rg-west-africa-quiz` in UK South and uses Standard LRS. The Azure account running Terraform needs **Storage Blob Data Contributor** on that storage account, plus rights to manage the staging resources and assign `AcrPull`.
 
-## Safe preparation commands
+Azure Cloud Shell is ephemeral. A new session must clone this branch, run `terraform init`, and set `TF_VAR_subscription_id` again. The backend persists the state between sessions. State can contain sensitive values; do not add it to GitHub. The account and the staging app may incur Azure charges.
 
-Install Terraform and sign in to the Azure CLI on your computer, or use Azure Cloud Shell for validation only. From `infra/`:
+The existing registry uses **LegacyRegistryPermissions**, so `AcrPull` is the relevant role. If that mode changes, revisit the assignment. The `v1` image must remain in the registry.
 
-```bash
-terraform fmt -check
-terraform init -backend=false
-terraform validate
-```
+## Reproduce and check
 
-These commands should not create Azure resources. Once durable state is configured and the correct subscription is selected:
+In Azure Cloud Shell:
 
 ```bash
+git clone --branch project-2-terraform-staging --single-branch https://github.com/olumideakinseye77-glitch/Olu.git Olu-project2
+cd Olu-project2/infra
 export TF_VAR_subscription_id="$(az account show --query id -o tsv)"
-terraform init -backend-config=backend.hcl
-terraform plan -out=staging.tfplan
-```
-
-Review the plan: it should create **only** one user-assigned identity, one `AcrPull` role assignment, and one **staging** Container App. It should not modify the live app, existing environment, or existing registry. Apply only after reviewing the plan and costs:
-
-```bash
-terraform apply staging.tfplan
+terraform init
+terraform fmt -check
+terraform validate
+terraform plan -no-color
 terraform output staging_url
 ```
 
-Test the staging URL and `/health`. Keep the state backend and its access safe so future plans know what Terraform created.
+A normal follow-up plan should report **No changes**. Test the URL and `/health` after deployment. If you deliberately change the image tag or another setting, review the new plan before applying it.
 
-## Definition of done
+## Notes from deployment
 
-- `terraform validate` passes.
-- A reviewed plan shows the three intended staging resources only.
-- The staging quiz and `/health` work through the public URL.
-- A second `terraform plan` shows no changes.
-- This README records the plan, output URL, and any deployment fixes.
+- Cloud Shell's first storage data request timed out obtaining a token. Signing in to the subscription's tenant for the storage scope resolved that issue.
+- Initial backend access returned `403 AuthorizationPermissionMismatch`. Assigning **Storage Blob Data Contributor** to the signed-in user at the storage-account scope fixed it.
+- The first `terraform init` with the backend succeeded; the final plan and apply each showed exactly three creations.
 
 ## Next project
 
-Project 3 adds automated tests and a GitHub Actions workflow to build, tag and deploy an image after code changes. Project 2 deliberately focuses on repeatable infrastructure and state.
+Project 3 adds automated tests and a GitHub Actions workflow to build, tag and deploy an image after code changes.
