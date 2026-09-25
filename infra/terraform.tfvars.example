@@ -1,0 +1,4 @@
+# Copy this file to terraform.tfvars only if you prefer a local variable file.
+# Never commit terraform.tfvars or Terraform state.
+subscription_id = "YOUR_AZURE_SUBSCRIPTION_ID"
+image_tag       = "v1"
