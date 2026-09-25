@@ -7,9 +7,6 @@ terraform {
       version = "~> 4.0"
     }
   }
-
-  # Before 'terraform apply', configure durable state storage as described
-  # in infra/README.md and change this to: backend "azurerm" {}
 }
 
 provider "azurerm" {
