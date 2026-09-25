@@ -23,6 +23,10 @@ docker run --rm -p 8000:8000 west-africa-quiz
 
 Open http://localhost:8000. The health endpoint is `/health`.
 
+## Project documentation
+
+Read the [build and deployment record](docs/PROJECT.md) for the architecture, verification steps, Azure resources, and problems solved.
+
 ## Azure deployment
 
 The live quiz runs on **Azure Container Apps** (Consumption) in UK South. Its image is stored in **Azure Container Registry** as `oluwestafricaquiz.azurecr.io/west-africa-quiz:v1`. Public HTTP ingress routes to container port **8000**. The application provides a health endpoint at `/health`.
