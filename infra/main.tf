@@ -33,6 +33,7 @@ resource "azurerm_container_app" "staging" {
   container_app_environment_id = data.azurerm_container_app_environment.existing.id
   resource_group_name          = data.azurerm_resource_group.existing.name
   revision_mode                = "Single"
+  workload_profile_name       = "Consumption"
 
   identity {
     type         = "UserAssigned"
