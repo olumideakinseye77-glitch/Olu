@@ -1,8 +1,10 @@
-# Olu's Azure DevOps Portfolio
+# West Africa Capitals Quiz — Azure Container Deployment
 
-## Project 1 — West Africa Capitals Quiz
+## Foundation project — West Africa Capitals Quiz
 
-**Status: Complete · [Play the live quiz](https://west-africa-quiz.orangetree-477f51ac.uksouth.azurecontainerapps.io) · [Read the project write-up](docs/PROJECT.md)**
+**Status: Build and deployment documented · [Play the live quiz](https://west-africa-quiz.orangetree-477f51ac.uksouth.azurecontainerapps.io) · [Read the project write-up](docs/PROJECT.md)**
+
+I started this foundation project to learn how to take a Python application from my laptop to Azure. I challenged myself to understand HTTP and JSON, package an app with Docker, store its image in Azure Container Registry and deploy it to Azure Container Apps.
 
 A Python web app about the capitals of 16 West African countries. Each round asks about every country once, ends after 16 answers, and shows your final score. It serves a responsive quiz, checks answers through a JSON API, and explains two commonly confused capitals. No Python packages are required.
 
@@ -31,7 +33,7 @@ Read the [build and deployment record](docs/PROJECT.md) for the architecture, ve
 
 ### Azure deployment
 
-The live quiz runs on **Azure Container Apps** (Consumption) in UK South. Its image is stored in **Azure Container Registry** as `oluwestafricaquiz.azurecr.io/west-africa-quiz:v1`. Public HTTP ingress routes to container port **8000**. The application provides a health endpoint at `/health`.
+The documented quiz deployment uses **Azure Container Apps** (Consumption) in UK South. Its image is stored in **Azure Container Registry** as `oluwestafricaquiz.azurecr.io/west-africa-quiz:v1`. Public HTTP ingress routes to container port **8000**. The application provides a health endpoint at `/health`.
 
 To publish a code change, pull the latest version, rebuild, tag, and push a new image:
 
@@ -56,11 +58,11 @@ Source code: [olumideakinseye77-glitch/Olu](https://github.com/olumideakinseye77
 
 Explain HTTP routes, JSON requests, Docker image layers, the exposed port, Azure container deployment, and why `/health` helps monitor the app. An extension would add GitHub Actions tests and automatic deployment after the first manual deployment works.
 
-## Project 2 — Terraform Staging Deployment on Azure
+## Extension — Terraform staging deployment on Azure
 
-**Status: Deployed and verified · [Play the staging quiz](https://west-africa-quiz-staging.orangetree-477f51ac.uksouth.azurecontainerapps.io) · [Review the Terraform code and deployment record](https://github.com/olumideakinseye77-glitch/Olu/pull/1)**
+**Status: Deployment verified during the build · [Play the staging quiz](https://west-africa-quiz-staging.orangetree-477f51ac.uksouth.azurecontainerapps.io) · [Review the Terraform code and deployment record](https://github.com/olumideakinseye77-glitch/Olu/pull/1)**
 
-I used **Terraform** to deploy a separate staging copy of my West Africa Capitals Quiz. It runs on Azure Container Apps in UK South using the existing Docker image in Azure Container Registry. The production quiz from Project 1 continues to run separately.
+I used **Terraform** to deploy a separate staging copy of my West Africa Capitals Quiz. It runs on Azure Container Apps in UK South using the existing Docker image in Azure Container Registry. The original quiz deployment is separate from the staging environment.
 
 ### What I built
 
@@ -78,6 +80,12 @@ Cloud Shell initially could not get a storage token, and Terraform received a `4
 
 ### Why this matters
 
-This project shows I can describe Azure infrastructure as code, control access with managed identity and role assignments, keep Terraform state durable, and verify that the deployed resources match the configuration. These are practical skills for **junior Azure cloud engineering and DevOps roles**. A hiring manager can inspect the [Terraform files and full setup guide](https://github.com/olumideakinseye77-glitch/Olu/tree/project-2-terraform-staging/infra) and try both the [production quiz](https://west-africa-quiz.orangetree-477f51ac.uksouth.azurecontainerapps.io) and [staging quiz](https://west-africa-quiz-staging.orangetree-477f51ac.uksouth.azurecontainerapps.io).
+This project shows I can describe Azure infrastructure as code, control access with managed identity and role assignments, keep Terraform state durable, and verify that the deployed resources match the configuration. These are practical skills for **junior Azure Cloud Engineering roles**. A hiring manager can inspect the [Terraform files and full setup guide](https://github.com/olumideakinseye77-glitch/Olu/tree/project-2-terraform-staging/infra) and try both the [production quiz](https://west-africa-quiz.orangetree-477f51ac.uksouth.azurecontainerapps.io) and [staging quiz](https://west-africa-quiz-staging.orangetree-477f51ac.uksouth.azurecontainerapps.io).
 
-**Next:** Project 3 will add automated tests and a GitHub Actions build and deployment workflow.
+## What I want to learn next
+
+After getting a containerised application deployed, I wanted to challenge myself with infrastructure availability and Linux administration. My next portfolio build, [Azure Highly Available Web Application](https://github.com/olumideakinseye77-glitch/azure-ha-webapp), explores two Availability Zones, load balancing, health checks and deliberate failure testing.
+
+Automated quiz tests and a GitHub Actions build/deployment workflow remain possible extensions to this repository; they are not claimed as completed here.
+
+This repository records my foundation quiz and its Terraform staging extension. The separately named Azure Cloud Engineering projects form the next part of my portfolio, avoiding conflicting project numbers. Live links reflect the documented deployment; availability can change when lab resources are stopped or removed.
