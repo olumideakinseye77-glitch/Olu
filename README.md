@@ -1,5 +1,8 @@
 # West Africa Capitals Quiz — Azure Container Deployment
 
+[Portfolio home](https://github.com/olumideakinseye77-glitch/it-cloud-portfolio) · [All Azure projects](https://github.com/olumideakinseye77-glitch/it-cloud-portfolio/tree/main/azure-projects)
+
+
 ## Foundation project — West Africa Capitals Quiz
 
 **Status: Build and deployment documented · [Play the live quiz](https://west-africa-quiz.orangetree-477f51ac.uksouth.azurecontainerapps.io) · [Read the project write-up](docs/PROJECT.md)**
