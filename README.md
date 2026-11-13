@@ -5,11 +5,26 @@
 
 ## Foundation project — West Africa Capitals Quiz
 
-**Status: Build and deployment documented · [Play the live quiz](https://west-africa-quiz.orangetree-477f51ac.uksouth.azurecontainerapps.io) · [Read the project write-up](docs/PROJECT.md)**
+**Status: Build and deployment documented · [Quiz deployment URL](https://west-africa-quiz.orangetree-477f51ac.uksouth.azurecontainerapps.io) · [Read the project write-up](docs/PROJECT.md)**
 
 I started this foundation project to learn how to take a Python application from my laptop to Azure. I challenged myself to understand HTTP and JSON, package an app with Docker, store its image in Azure Container Registry and deploy it to Azure Container Apps.
 
 A Python web app about the capitals of 16 West African countries. Each round asks about every country once, ends after 16 answers, and shows your final score. It serves a responsive quiz, checks answers through a JSON API, and explains two commonly confused capitals. No Python packages are required.
+
+## Interview walkthrough
+
+> I packaged a small Python quiz in Docker and deployed it on Azure Container Apps. I then used Terraform to create a separate staging app from the same registry image. I tested the staging quiz in a browser and ran a follow-up plan that showed no changes.
+
+| Choice | Why it fit this lab | When I'd choose the alternative |
+| --- | --- | --- |
+| Python standard library | The quiz needed a few HTTP routes and JSON responses. A small dependency-free app let me focus on packaging and deployment. | I'd use Flask or FastAPI if routing, validation or application structure grew. |
+| Docker and Azure Container Registry | The same versioned image could run locally and in staging. The registry gave Azure a private image source. | For a straightforward source deployment with no container requirement, I'd consider App Service with its managed runtime. |
+| Azure Container Apps Consumption | This was a small stateless HTTP app with irregular traffic. Managed ingress and the option to scale to zero fit the lab. | I'd look at AKS if a team needed Kubernetes APIs and cluster-level control. I'd consider always-on replicas if cold starts mattered. |
+| Terraform and managed identity | I reused the existing platform resources, stored state remotely and scoped the staging identity's image pull access to the registry. | For a short one-off experiment the portal is quick. For repeatable environments I'd keep the deployment in code. |
+
+**What did the clean Terraform plan prove?** Terraform saw no remaining changes for the staging configuration. The browser check established that the app served traffic. Each check answered a different question.
+
+[Staging deployment record](https://github.com/olumideakinseye77-glitch/Olu/pull/1) · [Portfolio interview guide](https://github.com/olumideakinseye77-glitch/it-cloud-portfolio/blob/main/INTERVIEW-GUIDE.md)
 
 ### Run locally
 
@@ -63,7 +78,7 @@ Explain HTTP routes, JSON requests, Docker image layers, the exposed port, Azure
 
 ## Extension — Terraform staging deployment on Azure
 
-**Status: Deployment verified during the build · [Play the staging quiz](https://west-africa-quiz-staging.orangetree-477f51ac.uksouth.azurecontainerapps.io) · [Review the Terraform code and deployment record](https://github.com/olumideakinseye77-glitch/Olu/pull/1)**
+**Status: Deployment verified during the build · [Staging deployment URL](https://west-africa-quiz-staging.orangetree-477f51ac.uksouth.azurecontainerapps.io) · [Review the Terraform code and deployment record](https://github.com/olumideakinseye77-glitch/Olu/pull/1)**
 
 I used **Terraform** to deploy a separate staging copy of my West Africa Capitals Quiz. It runs on Azure Container Apps in UK South using the existing Docker image in Azure Container Registry. The original quiz deployment is separate from the staging environment.
 
